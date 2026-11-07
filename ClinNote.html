@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ClinNote</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🩺</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light;--navy:#12305a;--navy2:#0d2444;--teal:#3a8a88;--tealbg:#e6f2f1;--bg:#f3f5f8;--line:#d9dee6;--tx:#1b2433;--mut:#667085;--red:#b42318;--amb:#b54708;--ambbg:#fef3e2;--grn:#1f7a4d}
+*{box-sizing:border-box}html,body,#root{height:100%;margin:0}
+body{font:13px/1.45 Inter,system-ui,"Segoe UI",Arial,sans-serif;color:var(--tx);background:var(--bg)}
+button{font:inherit;cursor:pointer}input,select,textarea{font:inherit;color:var(--tx)}
+.app{display:flex;height:100%}
+.side{width:200px;background:var(--navy);color:#fff;display:flex;flex-direction:column;padding:14px 10px;flex-shrink:0}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:17px;padding:2px 8px 16px}
+.logo i{width:26px;height:26px;border-radius:7px;background:var(--teal);display:grid;place-items:center}
+.nav{display:flex;align-items:center;gap:9px;width:100%;padding:8px 10px;border:0;background:none;color:#c5d1e3;border-radius:7px;text-align:left;margin-bottom:2px}
+.nav:hover{background:#1b3d6d}.nav.on{background:#fff;color:var(--navy);font-weight:600}
+.main{flex:1;min-width:0;display:flex;flex-direction:column;height:100%}
+.top{height:48px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 18px;flex-shrink:0}
+.top h1{font-size:15px;margin:0;font-weight:600}.pg{flex:1;overflow:auto;padding:16px 18px}
+.pg.ws{overflow:hidden;display:flex;flex-direction:column;padding:12px 14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:8px}
+.ch{padding:9px 12px;border-bottom:1px solid var(--line);font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:40px;flex-shrink:0}
+.btn{border:1px solid var(--line);background:#fff;border-radius:6px;padding:5px 10px;display:inline-flex;align-items:center;gap:6px;color:var(--tx)}
+.btn:hover{background:var(--bg)}.btn.p{background:var(--navy);color:#fff;border-color:var(--navy)}.btn.p:hover{background:var(--navy2)}
+.btn.t{background:var(--teal);border-color:var(--teal);color:#fff}.btn.r{background:var(--red);border-color:var(--red);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}
+.stat{padding:12px 14px;border-left:3px solid var(--teal)}.stat b{font-size:24px;display:block;color:var(--navy)}.stat span{color:var(--mut)}
+table{width:100%;border-collapse:collapse}th{text-align:left;font-weight:600;color:var(--mut);font-size:12px;padding:7px 12px;border-bottom:1px solid var(--line);background:#fafbfc}
+td{padding:8px 12px;border-bottom:1px solid #eceff3}tr.k{cursor:pointer}tr.k:hover td{background:var(--tealbg)}
+.tag{display:inline-block;padding:1px 7px;border-radius:5px;font-size:11px;font-weight:600}
+.tag.e{background:var(--tealbg);color:var(--teal)}.tag.ro{background:#eceff3;color:var(--mut)}.tag.d{background:var(--ambbg);color:var(--amb)}.tag.f{background:#e3f4ea;color:var(--grn)}
+.tl{position:relative;height:96px;margin:8px 22px 4px;border-bottom:2px solid var(--line)}
+.tl .hr{position:absolute;bottom:-20px;font-size:11px;color:var(--mut);transform:translateX(-50%)}
+.tl .gl{position:absolute;top:0;bottom:0;border-left:1px dashed #e3e7ed}
+.mk{position:absolute;bottom:-7px;width:16px;height:16px;border-radius:50%;transform:translateX(-50%);border:2px solid #fff;cursor:pointer;z-index:2}
+.mk.done{background:var(--teal)}.mk.pend{background:#fff;border:2px solid var(--amb)}
+.tip{position:absolute;bottom:24px;transform:translateX(-50%);background:var(--navy2);color:#fff;padding:6px 9px;border-radius:6px;font-size:12px;white-space:nowrap;z-index:5;pointer-events:none}
+.inp{width:100%;border:1px solid var(--line);border-radius:6px;padding:6px 9px;background:#fff}.inp:focus,textarea:focus{outline:2px solid var(--teal);outline-offset:-1px}
+.modal{position:fixed;inset:0;background:rgba(13,36,68,.45);display:grid;place-items:center;z-index:50}
+.mb{background:#fff;border-radius:10px;width:480px;max-width:94vw;max-height:90vh;overflow:auto}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px}.fg label{display:block;font-size:12px;color:var(--mut);margin-bottom:3px}.fg .w{grid-column:1/3}
+.login{height:100%;display:grid;place-items:center;background:var(--bg)}
+.lb{width:380px;padding:28px;background:#fff;border:1px solid var(--line);border-radius:10px}
+.ws3{flex:1;min-height:0;display:grid;grid-template-columns:24fr 35fr 41fr;gap:10px;margin-bottom:10px}
+.pan{display:flex;flex-direction:column;min-height:0;min-width:0}.pb{flex:1;overflow:auto;padding:10px 12px;min-height:0}
+.cond{display:flex;align-items:center;gap:6px;width:100%;border:0;background:none;padding:6px 2px;font-weight:600;color:var(--navy);text-align:left}
+.rep{display:flex;justify-content:space-between;align-items:center;gap:6px;width:100%;border:1px solid transparent;background:none;padding:5px 8px;border-radius:6px;text-align:left;margin-left:14px;width:calc(100% - 14px)}
+.rep:hover{background:var(--bg)}.rep.on{background:var(--tealbg);border-color:var(--teal)}
+.seg{display:flex;gap:0}.seg button{border:0;background:none;padding:0 14px;height:40px;color:var(--mut);font-weight:600;border-bottom:2px solid transparent}
+.seg button.on{color:var(--navy);border-bottom-color:var(--teal)}
+.sec{margin-bottom:11px}.sec h4{margin:0 0 3px;font-size:12px;color:var(--teal);font-weight:600}.sec p,.sec li{margin:0}.sec ul{margin:0;padding-left:16px}
+.fl{margin-bottom:8px}.fl label{display:block;font-size:12px;font-weight:600;color:var(--navy);margin-bottom:2px}
+.fl textarea{width:100%;border:1px solid var(--line);border-radius:6px;padding:6px 8px;resize:vertical;min-height:44px;background:#fff}
+.fl textarea:read-only{background:#f6f7f9;color:#475467}
+.chat{height:215px;flex-shrink:0;display:flex;flex-direction:column}
+.msgs{flex:1;overflow:auto;padding:8px 12px;display:flex;flex-direction:column;gap:6px}
+.m{max-width:78%;padding:6px 10px;border-radius:8px;white-space:pre-wrap}.m.u{align-self:flex-end;background:var(--navy);color:#fff}.m.b{align-self:flex-start;background:var(--bg);border:1px solid var(--line)}
+.chip{border:1px solid var(--teal);color:var(--teal);background:#fff;border-radius:14px;padding:2px 10px;font-size:12px}.chip:hover{background:var(--tealbg)}
+.rec{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--red);animation:bl 1s infinite}@keyframes bl{50%{opacity:.25}}
+.empty{color:var(--mut);padding:18px 6px;text-align:center}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--navy2);color:#fff;padding:8px 14px;border-radius:7px;z-index:80}
+.pb::-webkit-scrollbar,.pg::-webkit-scrollbar,.msgs::-webkit-scrollbar{width:8px}.pb::-webkit-scrollbar-thumb,.pg::-webkit-scrollbar-thumb,.msgs::-webkit-scrollbar-thumb{background:#cdd3dc;border-radius:4px}
+/* v2 visual refresh */
+:root{--navy:#0a1633;--teal:#0f9488;--tealbg:#e4f5f3;--bg:#f6f8fb;--line:#e2e7ee;--mut:#667085}
+body{background:var(--bg)}
+.side{width:232px;background:#0a1633;padding:18px 14px}
+.logo{gap:10px;padding:2px 6px 22px;font-size:17px;line-height:1.2}.logo small{display:block;font-size:12px;font-weight:400;color:#9db0cf}
+.logo i{width:38px;height:38px;border-radius:10px;background:#0f9488;color:#fff}
+.nav{padding:10px 12px;border-radius:9px;color:#d5deee;font-size:14px;margin-bottom:4px}.nav:hover{background:#12254a}
+.nav.on{background:#13284f;color:#38bdf8;font-weight:600}
+.uchip{background:#10244a;border:1px solid #1a3361;border-radius:9px;padding:10px 12px;margin-bottom:12px;line-height:1.35}.uchip b{display:block;font-size:14px}.uchip span{font-size:12px;color:#9db0cf}
+.top{height:64px;padding:0 26px;border-bottom:1px solid var(--line)}.top h1{font-size:16px}
+.uav{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:22px;padding:4px 14px 4px 5px;color:var(--tx);font-weight:600}.uav i{width:30px;height:30px;border-radius:50%;background:#0f9488;color:#fff;display:grid;place-items:center;font-style:normal;font-size:12px}
+.pg{padding:24px 28px}
+.card{border-radius:12px;box-shadow:0 1px 3px rgba(16,24,40,.06);border-color:var(--line)}
+.ch{padding:14px 18px;min-height:52px;font-size:14px}
+.btn{border-radius:8px;padding:7px 13px}.btn.p{background:#0a1633;border-color:#0a1633}.btn.t{background:#0f9488;border-color:#0f9488}
+.stats{gap:18px;margin-bottom:20px}.stat{border-left:1px solid var(--line);padding:18px 20px}
+.stat .sl{display:flex;justify-content:space-between;align-items:center;color:#475467;font-size:12px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:16px}
+.stat .sl i{width:34px;height:34px;border-radius:8px;display:grid;place-items:center}
+.stat b{font-size:30px;color:#0a1633;margin-bottom:12px}.stat span{font-size:13px}
+td:first-child{font:12.5px ui-monospace,Menlo,Consolas,monospace;color:var(--mut)}th{background:#fff;color:#344054;font-size:12.5px;padding:10px 16px}td{padding:12px 16px}
+.h2{font-size:19px;font-weight:600}.sub{color:var(--mut);font-size:12.5px}
+.pid{font:11.5px ui-monospace,Menlo,Consolas,monospace;background:#eef2f6;border:1px solid var(--line);border-radius:6px;padding:1px 8px}
+.pill{display:inline-flex;align-items:center;gap:5px;background:#0f9488;color:#fff;border-radius:16px;padding:4px 12px;font-size:12.5px;font-weight:600}.pill.o{background:#fff;color:#475467;border:1px solid var(--line);font-weight:500}
+.tl{height:132px;margin:34px 26px 18px;border-bottom:1px solid var(--line)}.tl .hr{bottom:auto;top:-26px}.tl .gl{border-left:1px solid #eef1f5}
+.mk{bottom:auto;transform:none;width:152px;height:auto;border-radius:9px;padding:6px 10px;text-align:left;font-size:12px;line-height:1.35;border:1px solid}
+.mk:nth-of-type(odd){top:8px}.mk:nth-of-type(even){top:68px}
+.mk .mt{display:block;font-weight:600}.mk .mn{display:block;color:#475467}
+.mk.done{background:#e4f8f5;border-color:#8fdccf;color:#0b5f57}.mk.pend{background:#fff8e6;border-color:#f6d58b;color:#8a5a00}
+.mk.done .mt::before,.mk.pend .mt::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;background:#0f9488}.mk.pend .mt::before{background:#f59e0b}
+.tip{bottom:auto;top:-62px;transform:none;background:#fff;color:var(--tx);border:1px solid var(--line);box-shadow:0 6px 18px rgba(16,24,40,.14);border-radius:9px;padding:8px 12px}
+.ws3{gap:14px;margin-bottom:14px}.pg.ws{padding:18px 22px}
+.cond{color:#0a1633}.rep{border-radius:8px;padding:7px 10px}.rep.on{background:#e4f5f3;border-color:#0f9488}
+.tag{border-radius:12px;padding:2px 9px}.tag.e{background:#e4f5f3;color:#0f9488}
+.seg{background:#eef2f6;border-radius:9px;padding:3px;margin:0 6px}.seg button{height:32px;border-radius:7px;padding:0 18px;border:0}.seg button.on{background:#fff;color:#0a1633;box-shadow:0 1px 2px rgba(16,24,40,.1)}
+.sec h4{text-transform:uppercase;letter-spacing:.05em;font-size:11.5px;color:#667085}
+.fl label{font-weight:500;color:#344054;font-size:12.5px}.fl textarea{border-radius:8px;padding:9px 11px}
+.chat{height:230px}.chip{border-color:var(--line);color:#344054;border-radius:16px;padding:4px 12px}.chip:hover{border-color:#0f9488;background:#e4f5f3}
+.m.u{background:#0f9488}.inp{border-radius:8px;padding:8px 11px}
+.lb{border-radius:14px;box-shadow:0 8px 30px rgba(16,24,40,.08)}
+.tl{height:196px;margin:0;border-bottom:1px solid var(--line)}.tl .hr{top:-28px}.tl .gl{top:-8px}
+.mk:nth-of-type(3n+1){top:6px}.mk:nth-of-type(3n+2){top:68px}.mk:nth-of-type(3n){top:130px}.mk:hover{z-index:4}
+.tip{top:-70px}
+/* workspace readability pass */
+:root{--mut:#556277}
+.pg.ws{font-size:14px}
+.ws3>.card,.chat{border-top:3px solid #0a1633}.chat{border-top-color:#0f9488}
+.ws3>.card>.ch{background:#f8fafc;border-radius:10px 10px 0 0;min-height:56px;font-size:15px}
+.ch>span:first-child{white-space:nowrap}.ch>span:nth-child(2){text-align:right;line-height:1.5}
+.ws3 .card:first-child .ch b{font:700 15px ui-monospace,Menlo,Consolas,monospace;color:#0a1633}
+.cond{font-size:14.5px;padding:8px 2px;color:#0a1633;border-bottom:1px solid #eef1f5;margin-bottom:4px}
+.rep{color:#1b2433;font-weight:600;font-size:13.5px;background:#fff;border:1px solid var(--line);margin:4px 0 4px 18px;width:calc(100% - 18px);padding:8px 10px}
+.rep:hover{border-color:#9fd6cf;background:#f4fbfa}
+.rep.on{background:#e4f5f3;border-color:#0f9488;color:#0a1633;box-shadow:inset 3px 0 0 #0f9488}
+.rep span{color:inherit}.rep .tag{font-size:11px;font-weight:700;letter-spacing:.03em}
+.tag.ro{background:#e9edf3;color:#44516a}
+.note{background:#e4f5f3;color:#0b5f57;border-radius:8px;padding:8px 11px;font-size:12.5px;margin-bottom:12px}
+.sec{background:#f8fafc;border:1px solid #e8ecf2;border-radius:10px;padding:10px 13px;margin-bottom:10px;font-size:14px;line-height:1.55;color:#1b2433}
+.sec h4{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:#0b6b62;letter-spacing:.05em;margin-bottom:5px}
+.sec h4::before{content:'';width:3px;height:13px;border-radius:2px;background:#0f9488}
+.sec li::marker{color:#0f9488}.sec ul{padding-left:18px}.sec li{margin-bottom:3px}
+.fl{margin-bottom:12px}.fl label{font-size:13px;font-weight:600;color:#0a1633;margin-bottom:4px}
+.fl textarea{font-size:14px;line-height:1.5;padding:9px 12px;border-color:#d3dae4}
+.fl textarea:read-only{background:#f3f6f9;color:#1b2433;border-color:#e2e7ee}
+.fl textarea:not(:read-only){background:#fff;border-color:#9fb0c7}
+.lock{padding:10px 14px;border-top:1px solid #f1dfb0;background:#fff8e6;color:#8a5a00;font-size:12.5px;line-height:1.45;border-radius:0 0 10px 10px}
+.msgs{padding:12px 18px;gap:8px}.m{font-size:14px;line-height:1.55;padding:9px 13px;border-radius:10px}
+.m.b{background:#fff;border:1px solid var(--line);border-left:3px solid #0f9488}
+.empty{font-size:14px;color:#556277}
+.chip{font-size:13px;color:#344054;background:#f8fafc}.chip:hover{color:#0b6b62}
+.seg button{font-size:14px;font-weight:600}.seg button:not(.on){color:#556277}
+.tag.f,.tag.d{font-size:11.5px}
+</style></head>
+<body><div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
+<script type="text/babel">
+const {useState,useEffect,useRef,useMemo}=React;
+const KEY='clinnote_v2';
+const FIELDS=[['cc','Chief Complaint'],['hpi','History of Present Illness'],['mh','Medical History'],['fi','Clinical Findings'],['dx','Diagnosis'],['inv','Investigations'],['rx','Treatment / Medication'],['adv',"Doctor’s Advice"],['fu','Follow-up']];
+const ICON={dash:'M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z',pat:'M16 11a4 4 0 1 0-8 0 4 4 0 0 0 8 0zM4 21a8 8 0 0 1 16 0',prof:'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM5 20h14',out:'M9 4H5v16h4M16 8l4 4-4 4M20 12H9',mic:'M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zM6 11a6 6 0 0 0 12 0M12 17v4',up:'M12 16V4M7 9l5-5 5 5M4 20h16',plus:'M12 5v14M5 12h14',chev:'M9 6l6 6-6 6',search:'M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM21 21l-5-5',file:'M6 3h8l4 4v14H6zM14 3v5h4',send:'M4 12l16-8-6 16-3-7z',back:'M15 6l-6 6 6 6',x:'M6 6l12 12M18 6L6 18',clock:'M12 7v5l3 2M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z',chk:'M8 12l3 3 5-6M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z',pulse:'M3 12h4l3-7 4 14 3-7h4'};
+const Ic=({n,s=15})=><svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={ICON[n]}/></svg>;
+let uid=100;const nid=()=>'r'+Date.now()+(uid++);
+const blank=()=>({cc:'',hpi:'',mh:'',fi:'',dx:'',inv:'',rx:'',adv:'',fu:''});
+const R=(id,cond,date,status,a)=>({id,cond,date,status,f:Object.fromEntries(FIELDS.map(([k],i)=>[k,a[i]||'']))});
+const SEED=[
+{id:'P-10421',name:'Ramesh Kulkarni',age:58,gender:'Male',cond:'Type 2 Diabetes Mellitus',last:'2026-11-05',allergies:['Penicillin'],hx:'Type 2 diabetes since 2014. Hypertension since 2017.',appt:{t:'09:30',s:'done',fee:800,paid:true},
+ reports:[R('a1','Type 2 Diabetes Mellitus','2026-05-12','final',['Routine diabetes review','Polyuria and fatigue for 2 weeks.','T2DM 2014; HTN 2017','BP 138/88, weight 78 kg','Type 2 diabetes, suboptimal control','HbA1c, fasting glucose, creatinine','Metformin 500 mg BD','Low-sugar diet, daily 30 min walk','3 months']),
+ R('a2','Type 2 Diabetes Mellitus','2026-08-14','final',['Follow-up, tingling in feet','Mild tingling in both feet for 1 month.','T2DM 2014; HTN 2017','Reduced monofilament sensation in left foot','Type 2 diabetes with early peripheral neuropathy','HbA1c 8.1%, B12 level','Metformin 1000 mg BD; Methylcobalamin 1500 mcg OD','Foot care, check feet daily','3 months']),
+ R('a3','Type 2 Diabetes Mellitus','2026-11-05','draft',['Diabetes follow-up','','','BP 132/84','','','','','']),
+ R('b1','Hypertension','2026-09-02','final',['BP check','Occasional headache.','HTN 2017','BP 146/92','Essential hypertension, stage 1','Lipid profile, ECG','Amlodipine 5 mg OD','Reduce salt, monitor BP at home','1 month'])],
+ docs:[]},
+{id:'P-10422',name:'Sunita Deshpande',age:42,gender:'Female',cond:'Bronchial Asthma',last:'2026-11-04',allergies:['Dust mites','Aspirin'],hx:'Asthma since childhood. No hospital admissions in 5 years.',appt:{t:'10:15',s:'done',fee:600,paid:true},
+ reports:[R('c1','Bronchial Asthma','2026-07-20','final',['Night cough and wheeze','Symptoms 3 nights per week for 1 month.','Childhood asthma','Bilateral expiratory wheeze, SpO2 97%','Bronchial asthma, partly controlled','Spirometry','Budesonide-formoterol inhaler BD; salbutamol SOS','Avoid dust, rinse mouth after inhaler','6 weeks']),
+ R('c2','Bronchial Asthma','2026-11-04','draft',['Review of asthma control','Night symptoms reduced to once a week.','Childhood asthma','Chest clear, SpO2 98%','','','','',''])],docs:[]},
+{id:'P-10423',name:'Arjun Mehta',age:34,gender:'Male',cond:'Acute Gastritis',last:'2026-11-03',allergies:[],hx:'No chronic illness. Smoker, 5 per day.',appt:{t:'11:45',s:'pend',fee:500,paid:false},
+ reports:[R('d1','Acute Gastritis','2026-11-03','final',['Epigastric burning for 4 days','Worse after spicy food, no vomiting.','None','Mild epigastric tenderness','Acute gastritis','H. pylori stool antigen','Pantoprazole 40 mg OD for 14 days','Avoid spicy food, NSAIDs and smoking','2 weeks'])],docs:[]},
+{id:'P-10424',name:'Meera Joshi',age:67,gender:'Female',cond:'Osteoarthritis (Knee)',last:'2026-10-29',allergies:['Sulfa drugs'],hx:'Osteoarthritis of both knees. Hypothyroidism on treatment.',appt:{t:'14:00',s:'pend',fee:700,paid:false},
+ reports:[R('e1','Osteoarthritis (Knee)','2026-10-29','final',['Bilateral knee pain on stairs','Gradual onset over 2 years.','Hypothyroidism','Crepitus both knees, mild effusion right','Bilateral knee osteoarthritis','X-ray knees','Paracetamol 650 mg SOS; Thyroxine 75 mcg OD','Physiotherapy, weight reduction','4 weeks'])],docs:[]},
+{id:'P-10425',name:'Farah Sheikh',age:29,gender:'Female',cond:'',last:'2026-11-07',allergies:[],hx:'',appt:{t:'15:30',s:'pend',fee:600,paid:false},reports:[],docs:[]}];
+const FN='Aarav,Priya,Rohan,Kavita,Sanjay,Neha,Vikram,Pooja,Amit,Deepa,Suresh,Anjali,Manoj,Shweta,Rahul,Nisha,Kiran,Swati,Harsh,Lata,Omkar,Ritu,Pranav,Smita,Yash,Madhuri,Nikhil,Sneha,Ganesh,Vaishali,Tushar,Rekha'.split(',');
+const LN='Patil,Sharma,Kulkarni,Joshi,Gupta,Iyer,Nair,Singh,Reddy,Bhosale,Chavan,Pawar,Desai,Shah,More,Kale,Jadhav,Gokhale,Menon,Verma'.split(',');
+const TP=['Hypertension|Headache and dizziness|Recurrent headaches for 2 weeks.|BP 152/96, pulse 82|Essential hypertension|ECG, lipid profile, serum creatinine|Telmisartan 40 mg OD|Low-salt diet, home BP log|2 weeks','Type 2 Diabetes Mellitus|Increased thirst and urination|Polyuria for 3 weeks.|Fasting glucose 168 mg/dL, BMI 29|Type 2 diabetes mellitus|HbA1c, fasting glucose, urine ACR|Metformin 500 mg BD|Diet control, 30 min daily walk|4 weeks','Bronchial Asthma|Wheeze and breathlessness|Night cough for 10 days.|Bilateral wheeze, SpO2 96%|Bronchial asthma, mild persistent|Peak flow, chest X-ray|Salbutamol inhaler SOS; budesonide inhaler BD|Avoid dust and smoke|3 weeks','Hypothyroidism|Fatigue and weight gain|Tiredness for 2 months.|Dry skin, pulse 62|Primary hypothyroidism|TSH, free T4|Levothyroxine 50 mcg OD|Take on an empty stomach|6 weeks','Acute Gastritis|Epigastric burning|Pain after meals for 5 days.|Epigastric tenderness|Acute gastritis|H. pylori stool antigen|Pantoprazole 40 mg OD|Avoid spicy food and NSAIDs|2 weeks','Migraine|Throbbing headache with nausea|Episodes twice a week for a month.|Neurological exam normal|Migraine without aura|None required|Sumatriptan 50 mg SOS|Sleep hygiene, trigger diary|4 weeks','Osteoarthritis (Knee)|Knee pain on climbing stairs|Pain for 1 year.|Crepitus, mild swelling|Knee osteoarthritis|X-ray knee|Paracetamol 650 mg SOS|Physiotherapy, weight loss|4 weeks','Acute Bronchitis|Cough with phlegm|Cough for 6 days.|Coarse crepitations, temp 99.4 F|Acute bronchitis|Chest X-ray|Ambroxol syrup TDS|Warm fluids, rest|1 week','Iron Deficiency Anaemia|Fatigue and pallor|Easy fatigue for 2 months.|Pallor, pulse 96|Iron deficiency anaemia|CBC, serum ferritin|Ferrous sulphate 200 mg OD|Iron-rich diet|4 weeks','Urinary Tract Infection|Burning micturition|Dysuria for 3 days.|Suprapubic tenderness|Uncomplicated UTI|Urine routine and culture|Nitrofurantoin 100 mg BD|Increase fluid intake|1 week','Lumbar Spondylosis|Low back pain|Pain for 3 weeks.|Restricted lumbar flexion|Lumbar spondylosis|X-ray lumbar spine|Etoricoxib 60 mg OD|Posture correction, physiotherapy|3 weeks','Allergic Rhinitis|Sneezing and nasal congestion|Seasonal symptoms for 2 weeks.|Pale nasal mucosa|Allergic rhinitis|None required|Cetirizine 10 mg OD|Avoid dust exposure|2 weeks'].map(s=>s.split('|'));
+const iso=d=>new Date(Date.UTC(2026,10,7)-d*864e5).toISOString().slice(0,10);
+const GEN=Array.from({length:35},(_,i)=>{const t=TP[(i*5+i%3)%TP.length],dd=(i*3)%40;
+ const mk=(d,s,cc)=>R('g'+i+'_'+d,t[0],iso(d),s,[cc||t[1],t[2],'',t[3],t[4],t[5],t[6],t[7],t[8]]);
+ const reports=[mk(dd,i%4===1?'draft':'final')];if(i%2===0)reports.unshift(mk(dd+75,'final','Initial consultation: '+t[1].toLowerCase()));
+ return {id:'P-'+(10426+i),name:FN[i%32]+' '+LN[(i*7+3)%20],age:22+(i*13)%56,gender:i%2?'Female':'Male',cond:t[0],last:iso(dd),allergies:i%5===0?['Penicillin']:i%7===3?['Sulfa drugs']:i%9===4?['NSAIDs','Dust mites']:[],hx:'Known case of '+t[0].toLowerCase()+'.',reports,docs:[]}});
+const decorate=ps=>ps.map((p,i)=>{if(p.bg)return p;const d=String(((i+3)*76543219)%900000000+100000000);let appt=null;
+ if(i<28){const m=510+Math.floor(i/2)*35+(i%2?15:0),s=m<750?'done':'pend';appt={t:String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'),s,fee:500+(i%8)*100,paid:s==='done'&&i%6!==5}}
+ return {...p,bg:['A+','B+','O+','AB+','A-','B-','O-'][(i*5)%7],phone:'+91 9'+d.slice(0,4)+' '+d.slice(4),ts:Date.now()-(i<7?[36,37,54,62,430,2900,4400][i]:2000+i*400)*6e4,appt}});
+const load=()=>{try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.patients)return s}catch(e){}return {patients:decorate([...SEED,...GEN]),login:false}};
+const nonEmpty=r=>Object.values(r.f).some(v=>v.trim());
+const latestOf=(p,c)=>{const rs=p.reports.filter(r=>r.cond===c);return rs.reduce((a,r)=>!a||r.date>=a.date?r:a,null)};
+const isEditable=(p,r)=>r&&r.status==='draft'&&latestOf(p,r.cond)?.id===r.id;
+const fmt=d=>new Date(d+'T00:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+const fmtD=d=>new Date(d+'T00:00').toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+const ago=ts=>{const m=Math.max(1,Math.round((Date.now()-ts)/6e4));return m<60?m+' minutes ago':m<1440?Math.round(m/60)+(m<120?' hour ago':' hours ago'):Math.round(m/1440)+(m<2880?' day ago':' days ago')};
+
+function summary(p){
+ const rs=p.reports.filter(nonEmpty);if(!rs.length&&!p.hx&&!p.allergies.length)return null;
+ const conds=[...new Set(p.reports.map(r=>r.cond))];
+ const dx=rs.filter(r=>r.f.dx).sort((a,b)=>a.date<b.date?1:-1).map(r=>[r.date,r.f.dx]);
+ const meds=conds.map(c=>{const r=rs.filter(x=>x.cond===c&&x.f.rx).sort((a,b)=>a.date<b.date?1:-1)[0];return r&&[c,r.f.rx,r.date]}).filter(Boolean);
+ const obs=conds.map(c=>{const r=rs.filter(x=>x.cond===c&&x.f.fi).sort((a,b)=>a.date<b.date?1:-1)[0];return r&&[c,r.f.fi,r.f.fu]}).filter(Boolean);
+ return {conds,dx,meds,obs};
+}
+function reply(p,q){
+ q=q.toLowerCase();const S=summary(p);
+ if(!S&&!p.allergies.length)return 'No records are available for '+p.name+' yet. Create a report or record a consultation first.';
+ if(/allerg/.test(q))return p.allergies.length?'Recorded allergies: '+p.allergies.join(', ')+'.':'No allergies are recorded for '+p.name+'.';
+ if(/medic|prescri|drug|rx/.test(q))return S&&S.meds.length?'Most recent medication on record:\n'+S.meds.map(m=>'• '+m[0]+' ('+fmt(m[2])+'): '+m[1]).join('\n'):'No medications are recorded in the available reports.';
+ if(/compar|differ|change/.test(q)){
+  const out=S?S.conds.map(c=>{const rs=p.reports.filter(r=>r.cond===c&&nonEmpty(r)).sort((a,b)=>a.date<b.date?1:-1);if(rs.length<2)return null;const [n,o]=rs;const ch=FIELDS.filter(([k])=>n.f[k]!==o.f[k]&&n.f[k]&&o.f[k]).map(([k,l])=>'  – '+l+': “'+o.f[k]+'” → “'+n.f[k]+'”');return '• '+c+' ('+fmt(o.date)+' vs '+fmt(n.date)+')'+(ch.length?'\n'+ch.join('\n'):'\n  No changed fields recorded.')}).filter(Boolean):[];
+  return out.length?out.join('\n'):'At least two reports under one condition are needed to compare.'}
+ if(/histor|summar|overview/.test(q)){const l=[p.name+', '+p.age+' y, '+p.gender+'.'];if(p.hx)l.push('History: '+p.hx);if(S&&S.dx.length)l.push('Latest diagnosis: '+S.dx[0][1]+' ('+fmt(S.dx[0][0])+').');if(S&&S.conds.length)l.push('Conditions: '+S.conds.join(', ')+'.');if(S&&S.meds.length)l.push('Current medication: '+S.meds.map(m=>m[1]).join('; ')+'.');return l.join('\n')}
+ return 'I can only answer from this patient’s records. Try asking about history, medications, allergies or a comparison of reports.';
+}
+
+function App(){
+ const [db,setDb]=useState(load);const [page,setPage]=useState('dash');const [pid,setPid]=useState(null);const [toast,setToast]=useState('');
+ useEffect(()=>{try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}},[db]);
+ const say=m=>{setToast(m);setTimeout(()=>setToast(''),1800)};
+ const upd=(id,fn)=>setDb(d=>({...d,patients:d.patients.map(p=>p.id===id?fn(p):p)}));
+ const open=id=>{setPid(id);setPage('ws')};
+ if(!db.login)return <Login onOk={em=>setDb(d=>({...d,login:true,email:em}))}/>;
+ const p=db.patients.find(x=>x.id===pid);
+ const nav=[['dash','Dashboard','dash'],['pats','Patients','pat'],['prof','Profile','prof']];
+ const title={dash:'Dashboard',pats:'Patients',prof:'Profile',ws:'Patient Workspace'}[page];
+ return <div className="app">
+  <aside className="side"><div className="logo"><i><Ic n="pulse" s={20}/></i><div>ClinNote<small>Clinical documentation</small></div></div>
+   {nav.map(([k,l,i])=><button key={k} className={'nav'+((page===k||(page==='ws'&&k==='pats'))?' on':'')} onClick={()=>setPage(k)}><Ic n={i}/>{l}</button>)}
+   <div style={{flex:1}}/><div className="uchip"><b>Dr. Anita Rao</b><span>DOC-001 · General Medicine</span></div><button className="nav" onClick={()=>{setDb(d=>({...d,login:false}));setPage('dash')}}><Ic n="out"/>Logout</button></aside>
+  <div className="main"><div className="top"><h1>{title}</h1><span style={{display:'flex',alignItems:'center',gap:16,color:'var(--mut)'}}>{new Date().toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'short',year:'numeric'})}<span className="uav"><i>AR</i>Dr. Anita Rao</span></span></div>
+   {page==='dash'&&<Dash ps={db.patients} open={open}/>}
+   {page==='pats'&&<Pats ps={db.patients} open={open} add={np=>{setDb(d=>({...d,patients:[np,...d.patients]}));say('Patient added');}}/>}
+   {page==='prof'&&<Prof ps={db.patients} email={db.email}/>}
+   {page==='ws'&&p&&<Workspace key={p.id} p={p} upd={fn=>upd(p.id,fn)} back={()=>setPage('pats')} say={say}/>}
+  </div>{toast&&<div className="toast">{toast}</div>}</div>;
+}
+
+function Login({onOk}){
+ const [u,setU]=useState('');const [pw,setPw]=useState('');const [err,setErr]=useState('');
+ const go=()=>{if(u.trim().toLowerCase()==='doctor@clinnote.in'&&pw==='clinnote123')onOk(u.trim().toLowerCase());else setErr('Incorrect ID or password. Use the demo credentials below.')};
+ return <div className="login"><div className="lb">
+  <div className="logo" style={{color:'var(--navy)',paddingLeft:0}}><i style={{color:'#fff'}}><Ic n="file" s={14}/></i>ClinNote</div>
+  <p style={{color:'var(--mut)',margin:'0 0 16px'}}>Clinical documentation for hospital doctors</p>
+  <label>Doctor ID / email</label><input className="inp" value={u} onChange={e=>setU(e.target.value)} style={{margin:'3px 0 10px'}} onKeyDown={e=>e.key==='Enter'&&go()}/>
+  <label>Password</label><input className="inp" type="password" value={pw} onChange={e=>setPw(e.target.value)} style={{margin:'3px 0 12px'}} onKeyDown={e=>e.key==='Enter'&&go()}/>
+  {err&&<div style={{color:'var(--red)',marginBottom:8}}>{err}</div>}
+  <button className="btn p" style={{width:'100%',justifyContent:'center',padding:8}} onClick={go}>Log in</button>
+  <div style={{marginTop:14,padding:10,background:'var(--tealbg)',borderRadius:6,fontSize:12}}>Demo credentials<br/><b>doctor@clinnote.in</b> / <b>clinnote123</b>
+   <button className="chip" style={{marginLeft:8}} onClick={()=>{setU('doctor@clinnote.in');setPw('clinnote123')}}>Fill</button></div></div></div>;
+}
+
+function Dash({ps,open}){
+ const [hv,setHv]=useState(null);const [hs,setHs]=useState(null);
+ const ap=ps.filter(p=>p.appt);const done=ap.filter(p=>p.appt.s==='done'),pend=ap.filter(p=>p.appt.s==='pend');
+ const paidL=ap.filter(p=>p.appt.paid),dueL=ap.filter(p=>!p.appt.paid);const paid=paidL.reduce((a,p)=>a+p.appt.fee,0),due=dueL.reduce((a,p)=>a+p.appt.fee,0),tot=paid+due||1;
+ const pos=t=>{const [h,m]=t.split(':').map(Number);return (h+m/60-8)/10*100};
+ const rec=[...ps].sort((a,b)=>b.ts-a.ts).slice(0,8);
+ const C=2*Math.PI*52;
+ return <div className="pg">
+  <div className="stats">{[['Treated today',done.length,'Completed consultations today','pat','#e4f5f3','#0f9488'],['Treated this week',24+done.length,'Last 7 days, completed','file','#e5f1fb','#2b7bbf'],['Pending',pend.length,'Upcoming appointments','clock','#fff1dc','#c2620a'],['Completed',done.length+15,'All-time consultations','chk','#e3f6ea','#1f7a4d']].map(([l,v,c,ic,bg,fg])=><div key={l} className="card stat"><div className="sl">{l}<i style={{background:bg,color:fg}}><Ic n={ic} s={17}/></i></div><b>{v}</b><span>{c}</span></div>)}</div>
+  <div className="card" style={{marginBottom:12}}><div className="ch">Today’s appointments<span style={{fontWeight:400,color:'var(--mut)',fontSize:12}}><span className="tag e">● Completed</span> <span className="tag d">○ Pending</span></span></div>
+   <div style={{padding:'70px 26px 30px',overflowX:'auto'}}><div className="tl" style={{width:2400}}>{Array.from({length:11},(_,i)=><React.Fragment key={i}><span className="gl" style={{left:i*10+'%'}}/><span className="hr" style={{left:i*10+'%'}}>{String(8+i).padStart(2,'0')}:00</span></React.Fragment>)}
+    {ap.map(p=><React.Fragment key={p.id}>{hv===p.id&&<div className="tip" style={{left:pos(p.appt.t)+'%'}}>{p.id} · {p.name}<br/>{p.appt.t} · {p.appt.s==='done'?'Completed':'Pending'}</div>}
+     <button className={'mk '+p.appt.s} style={{left:pos(p.appt.t)+'%'}} onMouseEnter={()=>setHv(p.id)} onMouseLeave={()=>setHv(null)} onFocus={()=>setHv(p.id)} onBlur={()=>setHv(null)} onClick={()=>open(p.id)} aria-label={p.name}><span className="mt">{p.appt.t}</span><span className="mn">{p.name}</span></button></React.Fragment>)}</div></div></div>
+  <div style={{display:'grid',gridTemplateColumns:'1.7fr 1fr',gap:12}}>
+   <div className="card"><div className="ch">Recent patient activity</div><table><thead><tr><th>Patient ID</th><th>Name</th><th>Condition</th><th>Last updated</th></tr></thead>
+    <tbody>{rec.map(p=><tr key={p.id} className="k" onClick={()=>open(p.id)}><td>{p.id}</td><td><b>{p.name}</b></td><td>{p.cond||'—'}</td><td style={{textAlign:'right',color:'var(--mut)'}}>{ago(p.ts)}</td></tr>)}</tbody></table></div>
+   <div className="card"><div className="ch">Income report</div>{hs&&<div className="tip" style={{position:'fixed',left:hs.x+14,top:hs.y+14}}><b>{hs.k==='c'?'Completed payments':'Pending payments'}</b><br/>₹{(hs.k==='c'?paid:due).toLocaleString('en-IN')} · {hs.k==='c'?paidL.length:dueL.length} payments · {Math.round((hs.k==='c'?paid:due)/tot*100)}%</div>}<div style={{display:'flex',alignItems:'center',gap:16,padding:14}}>
+    <svg width="170" height="170" viewBox="0 0 130 130" style={{flexShrink:0}}><g transform="rotate(-90 65 65)"><circle cx="65" cy="65" r="52" fill="none" stroke="#f59e0b" strokeWidth={hs&&hs.k==='p'?20:16} style={{cursor:'pointer'}} onMouseMove={e=>setHs({k:'p',x:e.clientX,y:e.clientY})} onMouseLeave={()=>setHs(null)}/><circle cx="65" cy="65" r="52" fill="none" stroke="#0f9488" strokeWidth={hs&&hs.k==='c'?20:16} strokeDasharray={`${C*paid/tot} ${C}`} style={{cursor:'pointer'}} onMouseMove={e=>setHs({k:'c',x:e.clientX,y:e.clientY})} onMouseLeave={()=>setHs(null)}/></g><text x="65" y="62" textAnchor="middle" fontSize="9" letterSpacing="1" fill="#667085">TOTAL BILLED</text><text x="65" y="80" textAnchor="middle" fontSize="15" fontWeight="700" fill="#0a1633">₹{tot.toLocaleString('en-IN')}</text></svg>
+    <div><div><span style={{color:'#0f9488'}}>●</span> Completed<br/><b>₹{paid.toLocaleString('en-IN')}</b> · {Math.round(paid/tot*100)}% · {paidL.length} payments</div><div style={{marginTop:10}}><span style={{color:'#f59e0b'}}>●</span> Pending<br/><b>₹{due.toLocaleString('en-IN')}</b> · {Math.round(due/tot*100)}% · {dueL.length} payments</div></div></div></div></div></div>;
+}
+
+function Pats({ps,open,add}){
+ const [q,setQ]=useState('');const [m,setM]=useState(false);
+ const f=ps.filter(p=>(p.name+p.id+p.cond).toLowerCase().includes(q.toLowerCase()));
+ return <div className="pg"><div style={{display:'flex',gap:10,marginBottom:16,alignItems:'center'}}><div style={{flex:1}}><div className="h2">Patient Records</div><div className="sub">{f.length} of {ps.length} patient folders</div></div>
+  <div style={{position:'relative',flex:1,maxWidth:380}}><span style={{position:'absolute',left:9,top:7,color:'var(--mut)'}}><Ic n="search"/></span><input className="inp" style={{paddingLeft:30}} placeholder="Search by name, ID or condition" value={q} onChange={e=>setQ(e.target.value)}/></div>
+  <button className="btn p" onClick={()=>setM(true)}><Ic n="plus"/>Add New Patient</button></div>
+  <div className="card"><table><thead><tr><th>Patient ID</th><th>Name</th><th>Age</th><th>Gender</th><th>Blood group</th><th>Phone</th><th>Primary condition</th><th>Last visit</th></tr></thead>
+   <tbody>{f.map(p=><tr key={p.id} className="k" onClick={()=>open(p.id)}><td>{p.id}</td><td><b>{p.name}</b></td><td>{p.age}</td><td>{p.gender}</td><td>{p.bg}</td><td>{p.phone}</td><td>{p.cond||<span style={{color:'var(--mut)'}}>New patient</span>}</td><td>{fmtD(p.last)}</td></tr>)}</tbody></table>
+   {!f.length&&<div className="empty">No patients match “{q}”. Check the spelling or add a new patient.</div>}</div>
+  {m&&<AddModal n={ps.length} close={()=>setM(false)} add={np=>{add(np);setM(false)}}/>}</div>;
+}
+function AddModal({n,close,add}){
+ const [f,setF]=useState({name:'',age:'',gender:'Male',cond:'',allergies:'',hx:''});const [e,setE]=useState('');
+ const s=k=>ev=>setF({...f,[k]:ev.target.value});
+ const go=()=>{if(!f.name.trim()||!f.age||+f.age<0||+f.age>120)return setE('Enter a name and a valid age.');
+  const today=new Date().toISOString().slice(0,10);
+  add({id:'P-'+(10421+n),name:f.name.trim(),age:+f.age,gender:f.gender,cond:f.cond.trim(),last:today,allergies:f.allergies.split(',').map(x=>x.trim()).filter(Boolean),hx:f.hx.trim(),ts:Date.now(),bg:'—',phone:'—',appt:null,reports:f.cond.trim()?[{id:nid(),cond:f.cond.trim(),date:today,status:'draft',f:blank()}]:[],docs:[]})};
+ return <div className="modal" onMouseDown={e=>e.target===e.currentTarget&&close()}><div className="mb"><div className="ch">Add new patient<button className="btn" onClick={close}><Ic n="x"/></button></div>
+  <div className="fg"><div className="w"><label>Full name</label><input className="inp" value={f.name} onChange={s('name')}/></div>
+   <div><label>Age</label><input className="inp" type="number" value={f.age} onChange={s('age')}/></div>
+   <div><label>Gender</label><select className="inp" value={f.gender} onChange={s('gender')}><option>Male</option><option>Female</option><option>Other</option></select></div>
+   <div className="w"><label>Primary condition (optional)</label><input className="inp" value={f.cond} onChange={s('cond')}/></div>
+   <div className="w"><label>Known allergies (comma separated)</label><input className="inp" value={f.allergies} onChange={s('allergies')}/></div>
+   <div className="w"><label>Relevant history</label><input className="inp" value={f.hx} onChange={s('hx')}/></div>
+   {e&&<div className="w" style={{color:'var(--red)'}}>{e}</div>}</div>
+  <div style={{padding:'0 14px 14px',display:'flex',justifyContent:'flex-end',gap:8}}><button className="btn" onClick={close}>Cancel</button><button className="btn p" onClick={go}>Save patient</button></div></div></div>;
+}
+function Prof({ps,email}){return <ProfV ps={ps} em={email||'doctor@clinnote.in'}/>}
+function ProfV({ps,em}){const row=(l,v)=><div style={{display:'flex',justifyContent:'space-between',padding:'8px 0'}}><span style={{color:'var(--mut)'}}>{l}</span><b style={{fontWeight:500}}>{v}</b></div>;
+ return <div className="pg"><div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:18,maxWidth:1200,alignItems:'start'}}>
+ <div className="card" style={{padding:24}}><div style={{display:'flex',gap:16,alignItems:'center',paddingBottom:18,borderBottom:'1px solid var(--line)',marginBottom:8}}><span className="uav" style={{padding:0,border:0}}><i style={{width:70,height:70,fontSize:24}}>AR</i></span><div><div className="h2">Dr. Anita Rao</div><div className="sub" style={{margin:'2px 0 6px'}}>Senior Consultant Physician · General Medicine</div><span className="pid">DOC-001</span></div></div>
+ {row('Signed in as',em)}{row('Phone','+91 98200 11223')}{row('Registration no.','MMC-2011-48213')}{row('Hospital','City General Hospital, Pune')}{row('Patients on record',ps.length)}</div>
+ <div style={{display:'grid',gap:18}}>
+ <div className="card" style={{padding:20}}><div className="h2" style={{fontSize:15,marginBottom:6}}>AI engine</div><p className="sub" style={{margin:'0 0 12px',fontSize:13}}>Summaries, report drafting and the Clinical Assistant run on a local, rule-based engine inside this app. A self-hosted LLM (for example Ollama) can be connected later without changing the interface.</p>{['Local inference','No external AI APIs','No patient data sent out'].map(t=><span key={t} className="pid" style={{marginRight:8,fontFamily:'inherit',fontSize:12.5}}>{t}</span>)}</div>
+ <div className="card" style={{padding:20}}><div className="h2" style={{fontSize:15,marginBottom:6}}>Data handling</div><p className="sub" style={{margin:'0 0 12px',fontSize:13}}>In this demo build, patient records, transcripts and uploaded reports are kept in this browser’s local storage and are never sent to external services. Regulatory compliance (for example DPDP) is not claimed until the necessary safeguards are implemented and validated.</p><div className="sub">ClinNote demo build · seeded with {ps.length} demo patients</div></div></div></div></div>}
+function ProfOld({ps}){
+ return <div className="pg"><div className="card" style={{maxWidth:560}}><div className="ch">Doctor profile</div><div className="fg" style={{gridTemplateColumns:'1fr 1fr'}}>
+  {[['Name','Dr. Anita Rao'],['Doctor ID','DOC-001'],['Department','General Medicine'],['Registration no.','MMC-2011-48213'],['Hospital','City General Hospital, Pune'],['Patients on record',ps.length]].map(([l,v])=><div key={l}><label>{l}</label><div style={{fontWeight:600}}>{v}</div></div>)}</div></div></div>;
+}
+
+function Workspace({p,upd,back,say}){
+ const firstC=p.reports[0]?.cond;
+ const [sel,setSel]=useState(()=>firstC?latestOf(p,firstC).id:null);
+ const [open,setOpen]=useState(()=>Object.fromEntries([...new Set(p.reports.map(r=>r.cond))].map(c=>[c,true])));
+ const [tab,setTab]=useState('sum');const [viewer,setViewer]=useState(null);const [newC,setNewC]=useState('');
+ const rep=p.reports.find(r=>r.id===sel);
+ const conds=[...new Set(p.reports.map(r=>r.cond))];
+ const addReport=c=>{const id=nid();const prev=latestOf(p,c);upd(x=>({...x,reports:[...x.reports,{id,cond:c,date:new Date().toISOString().slice(0,10),status:'draft',f:blank()}]}));setSel(id);setOpen(o=>({...o,[c]:true}));say('New report started')};
+ const addCond=()=>{const c=newC.trim();if(!c)return;if(conds.includes(c)){say('Condition already exists');return}addReport(c);upd(x=>({...x,cond:x.cond||c}));setNewC('')};
+ const fileRef=useRef();const [cat,setCat]=useState('Blood report');
+ const onFile=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{upd(x=>({...x,docs:[{id:nid(),name:f.name,cat,type:f.type,url:rd.result,date:new Date().toISOString().slice(0,10)},...x.docs]}));say('Report uploaded')};rd.readAsDataURL(f);e.target.value=''};
+ return <div className="pg ws">
+  <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:14}}><button className="btn" style={{border:0,padding:4,background:'none'}} onClick={back} aria-label="Back to patients"><Ic n="back" s={20}/></button><div><div style={{display:'flex',alignItems:'center',gap:10}}><span className="h2">{p.name}</span><span className="pid">{p.id}</span></div><div className="sub">{p.age} yrs · {p.gender} · Blood group {p.bg} · {p.phone}{p.allergies.length?' · Allergies: '+p.allergies.join(', '):''} · Last visit {fmt(p.last)}</div></div><span style={{flex:1}}/>{p.cond&&<span className="pill">{p.cond}</span>}{p.appt&&<span className="pill o"><Ic n="clock" s={13}/>Today: {p.appt.t}</span>}</div>
+  <div className="ws3">
+   <div className="card pan"><div className="ch"><div><b>{p.id}</b><div style={{fontWeight:400,color:'var(--mut)',fontSize:12}}>{p.name} · {p.age} y · {p.gender}</div></div></div>
+    <div className="pb">
+     {!conds.length&&<div className="empty">No conditions recorded. Add the first condition below.</div>}
+     {conds.map(c=>{const rs=p.reports.filter(r=>r.cond===c).sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:0);const lat=latestOf(p,c);
+      return <div key={c} style={{marginBottom:6}}><div style={{display:'flex',alignItems:'center'}}><button className="cond" onClick={()=>setOpen(o=>({...o,[c]:!o[c]}))}><span style={{display:'inline-block',transform:open[c]?'rotate(90deg)':'none',transition:'transform .15s'}}><Ic n="chev" s={13}/></span>{c}</button>
+       <button className="btn" style={{padding:'1px 6px'}} disabled={lat&&lat.status==='draft'} title={lat&&lat.status==='draft'?'Finalise the current report first':'Start a new report'} onClick={()=>addReport(c)}><Ic n="plus" s={12}/></button></div>
+       {open[c]&&rs.map(r=>{const ed=isEditable(p,r);return <button key={r.id} className={'rep'+(sel===r.id?' on':'')} onClick={()=>setSel(r.id)}><span>{fmt(r.date)}</span><span className={'tag '+(ed?'e':'ro')}>{ed?'EDITABLE':'READ ONLY'}</span></button>})}</div>})}
+     <div style={{display:'flex',gap:4,margin:'6px 0 12px'}}><input className="inp" placeholder="New condition" value={newC} onChange={e=>setNewC(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addCond()}/><button className="btn" onClick={addCond}><Ic n="plus"/></button></div>
+     <div style={{borderTop:'1px solid var(--line)',paddingTop:8}}><div style={{fontWeight:600,marginBottom:4}}>Medical reports</div>
+      {['Blood report','Urine report','Other investigation'].map(k=>{const ds=p.docs.filter(d=>d.cat===k);return <div key={k} style={{marginBottom:5}}><div style={{color:'var(--mut)',fontSize:12}}>{k}s ({ds.length})</div>
+       {ds.map(d=><button key={d.id} className="rep" style={{padding:'3px 8px'}} onClick={()=>setViewer(d)}><span style={{display:'flex',gap:5,alignItems:'center',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}><Ic n="file" s={13}/>{d.name}</span><span style={{color:'var(--mut)',fontSize:11}}>{fmt(d.date)}</span></button>)}</div>})}
+      <div style={{display:'flex',gap:4,marginTop:6}}><select className="inp" value={cat} onChange={e=>setCat(e.target.value)}><option>Blood report</option><option>Urine report</option><option>Other investigation</option></select></div>
+      <input ref={fileRef} type="file" accept="application/pdf,image/*" hidden onChange={onFile}/>
+      <button className="btn t" style={{marginTop:6,width:'100%',justifyContent:'center'}} onClick={()=>fileRef.current.click()}><Ic n="up"/>Upload New Report</button></div></div></div>
+   <MidPanel p={p} upd={upd} say={say} tab={tab} setTab={setTab} rep={rep} setRepField={null}/>
+   <RightPanel key={sel} p={p} rep={rep} upd={upd} say={say} addCondHint={!conds.length}/>
+  </div>
+  <Chat p={p} upd={upd}/>
+  {viewer&&<div className="modal" onMouseDown={e=>e.target===e.currentTarget&&setViewer(null)}><div className="mb" style={{width:760,height:'86vh',display:'flex',flexDirection:'column'}}><div className="ch">{viewer.name}<button className="btn" onClick={()=>setViewer(null)}><Ic n="x"/></button></div>
+   <div style={{flex:1,minHeight:0,overflow:'auto',background:'#f6f7f9',display:'grid',placeItems:'center'}}>{viewer.type.startsWith('image')?<img src={viewer.url} style={{maxWidth:'100%'}} alt={viewer.name}/>:<iframe src={viewer.url} title={viewer.name} style={{width:'100%',height:'100%',border:0}}/>}</div>
+   <div style={{padding:8,textAlign:'right'}}><a className="btn" href={viewer.url} download={viewer.name}>Download</a></div></div></div>}
+ </div>;
+}
+
+function MidPanel({p,upd,say,tab,setTab}){
+ const [txt,setTxt]=useState(p.transcript||'');const [recOn,setRecOn]=useState(false);const rr=useRef();
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ useEffect(()=>()=>{try{rr.current&&rr.current.stop()}catch(e){}},[]);
+ const start=()=>{if(!SR){say('Speech recognition unavailable. Type notes manually.');return}
+  const r=new SR();r.continuous=true;r.interimResults=false;r.lang='en-IN';
+  r.onresult=e=>{let s='';for(let i=e.resultIndex;i<e.results.length;i++)if(e.results[i].isFinal)s+=e.results[i][0].transcript+'. ';setTxt(t=>(t&&!/\s$/.test(t)?t+' ':t)+s)};
+  r.onend=()=>setRecOn(false);r.onerror=()=>{setRecOn(false);say('Microphone not available')};
+  rr.current=r;try{r.start();setRecOn(true)}catch(e){}};
+ const stop=()=>{try{rr.current&&rr.current.stop()}catch(e){}setRecOn(false)};
+ const S=useMemo(()=>summary(p),[p]);
+ const Sec=({t,children})=><div className="sec"><h4>{t}</h4>{children}</div>;
+ return <div className="card pan"><div className="ch" style={{padding:'0 6px'}}><div className="seg"><button className={tab==='sum'?'on':''} onClick={()=>setTab('sum')}>AI Summary</button><button className={tab==='tr'?'on':''} onClick={()=>setTab('tr')}>Transcript</button></div>
+   {tab==='tr'&&(recOn?<span><span className="rec"/> Recording…</span>:<span style={{color:'var(--mut)',fontWeight:400}}>{p.transcript&&p.transcript===txt?'Saved':'Not recording'}</span>)}</div>
+  <div className="pb">{tab==='sum'?(!S?<div className="empty">No previous records available. Create a report or record a consultation to generate a summary.</div>:<>
+   <div className="note">Combined from {p.reports.filter(nonEmpty).length} report(s). Simulated summary; verify against source records.</div>
+   <Sec t="Medical history"><p>{p.hx||'Not recorded.'}</p>{S.conds.length>0&&<p>Conditions: {S.conds.join(', ')}</p>}</Sec>
+   <Sec t="Previous diagnoses">{S.dx.length?<ul>{S.dx.map(([d,x],i)=><li key={i}>{x} <span style={{color:'var(--mut)'}}>({fmt(d)})</span></li>)}</ul>:<p>None recorded.</p>}</Sec>
+   <Sec t="Medications">{S.meds.length?<ul>{S.meds.map((m,i)=><li key={i}><b>{m[0]}:</b> {m[1]}</li>)}</ul>:<p>None recorded.</p>}</Sec>
+   <Sec t="Allergies"><p>{p.allergies.length?p.allergies.join(', '):'No known allergies recorded.'}</p></Sec>
+   <Sec t="Important observations">{S.obs.length?<ul>{S.obs.map((o,i)=><li key={i}>{o[1]}{o[2]?' · Follow-up: '+o[2]:''}</li>)}</ul>:<p>None recorded.</p>}</Sec></>)
+  :<div style={{display:'flex',flexDirection:'column',height:'100%',gap:8}}>
+   <textarea className="inp" style={{flex:1,resize:'none',minHeight:140}} placeholder="Type consultation notes here, or start recording…" value={txt} onChange={e=>setTxt(e.target.value)}/>
+   <div style={{display:'flex',gap:6,flexWrap:'wrap'}}><button className="btn r" disabled={recOn} onClick={start}><Ic n="mic"/>Start Recording</button><button className="btn" disabled={!recOn} onClick={stop}>Stop Recording</button>
+    <button className="btn p" style={{marginLeft:'auto'}} onClick={()=>{upd(x=>({...x,transcript:txt}));say('Transcript saved')}}>Save Transcript</button></div>
+   {!SR&&<div style={{fontSize:11,color:'var(--mut)'}}>Speech recognition is not supported in this browser. Manual typing is available.</div>}</div>}</div></div>;
+}
+
+function RightPanel({p,rep,upd,say}){
+ const [f,setF]=useState(rep?{...rep.f}:blank());
+ const ed=isEditable(p,rep);
+ const write=(status)=>{upd(x=>({...x,ts:Date.now(),last:new Date().toISOString().slice(0,10),reports:x.reports.map(r=>r.id===rep.id?{...r,f,status:status||r.status}:r)}))};
+ const gen=()=>{const t=(p.transcript||'').trim();if(!t)return say('Save a transcript first');
+  const rules={cc:/complain|presents|came with|c\/o/i,hpi:/since|for \d+|days|weeks|onset/i,fi:/exam|bp|pulse|temp|auscult|tender|spo2|findings/i,dx:/diagnos|likely|suggests|impression/i,inv:/test|cbc|ecg|x-ray|scan|hba1c|order/i,rx:/prescrib|tab |mg|start|continue/i,adv:/advise|avoid|rest|diet|exercise/i,fu:/follow|review|return|come back/i};
+  const ss=t.split(/(?<=[.!?])\s+|\n+/).map(s=>s.trim()).filter(Boolean);let n=0;const nf={...f};
+  Object.keys(rules).forEach(k=>{if(nf[k].trim())return;const m=ss.filter(s=>rules[k].test(s));if(m.length){nf[k]='[AI draft] '+m.join(' ');n++}});
+  setF(nf);say(n?'Draft added to '+n+' empty field(s). Existing text kept.':'No matching content found in transcript')};
+ if(!rep)return <div className="card pan"><div className="ch">Current Editable Report</div><div className="pb"><div className="empty">No report selected. Add a condition in the left panel to start a report.</div></div></div>;
+ return <div className="card pan"><div className="ch"><span>{ed?'Current Editable Report':'Report (read only)'}</span><span style={{fontWeight:400,fontSize:12,color:'var(--mut)'}}>{rep.cond} · {fmt(rep.date)} <span className={'tag '+(rep.status==='final'?'f':'d')}>{rep.status==='final'?'Finalised':'Draft'}</span></span></div>
+  <div className="pb">{FIELDS.map(([k,l])=><div className="fl" key={k}><label>{l}</label><textarea readOnly={!ed} rows={k==='cc'||k==='fu'?1:2} value={f[k]} onChange={e=>setF({...f,[k]:e.target.value})}/></div>)}</div>
+  {ed?<div style={{padding:'8px 12px',borderTop:'1px solid var(--line)',display:'flex',gap:6,flexWrap:'wrap'}}><button className="btn t" onClick={gen}>Generate Draft from Transcript</button><span style={{flex:1}}/><button className="btn" onClick={()=>{write();say('Draft saved')}}>Save Draft</button>
+   <button className="btn p" onClick={()=>{if(!f.dx.trim())return say('Add a diagnosis before finalising');write('final');say('Report finalised and locked')}}>Finalise Report</button></div>
+  :<div className="lock">🔒 This report can’t be edited. Only the latest unfinalised report per condition is editable.</div>}</div>;
+}
+
+function Chat({p,upd}){
+ const [q,setQ]=useState('');const end=useRef();const msgs=p.chat||[];
+ useEffect(()=>{end.current&&end.current.scrollTo(0,end.current.scrollHeight)},[msgs.length]);
+ const send=t=>{t=(t??q).trim();if(!t)return;setQ('');upd(x=>({...x,chat:[...(x.chat||[]),{r:'u',t},{r:'b',t:reply(x,t)}]}))};
+ return <div className="card chat"><div className="ch">Clinical Assistant<span style={{fontWeight:400,fontSize:12,color:'var(--mut)'}}>Answers only from {p.name}’s recorded data</span></div>
+  <div className="msgs" ref={end}>{!msgs.length&&<div className="empty">Ask a question about this patient, or pick a suggestion below.</div>}{msgs.map((m,i)=><div key={i} className={'m '+(m.r==='u'?'u':'b')}>{m.t}</div>)}</div>
+  <div style={{padding:'6px 12px 8px',borderTop:'1px solid var(--line)'}}><div style={{display:'flex',gap:6,marginBottom:6,flexWrap:'wrap'}}>{['Summarise patient history.','What medications were prescribed previously?','Are there any recorded allergies?','Compare previous reports.'].map(s=><button key={s} className="chip" onClick={()=>send(s)}>{s}</button>)}</div>
+   <div style={{display:'flex',gap:6}}><input className="inp" placeholder="Ask about this patient…" value={q} onChange={e=>setQ(e.target.value)} onKeyDown={e=>e.key==='Enter'&&send()}/><button className="btn p" onClick={()=>send()}><Ic n="send"/>Send</button></div></div></div>;
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script></body></html>
